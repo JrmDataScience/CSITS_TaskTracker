@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CSITS Organization Task Tracker">
+  <title>CSITS Organization Task Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <img src="assets/Logo.png" alt="CSITS logo" class="brand-mark">
+        <span>CSITS <small>Organization</small></span>
+      </div>
+      <nav class="navigation">
+        <button class="nav-link active" data-page="dashboard"><span aria-hidden="true">▦</span> Dashboard</button>
+        <button class="nav-link" data-page="board"><span aria-hidden="true">▤</span> Task Board</button>
+        <button class="nav-link" data-page="members"><span aria-hidden="true">♙</span> Members</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-link" id="themeToggle" title="Switch to dark mode"><span id="themeIcon" aria-hidden="true">◐</span><span id="themeLabel">Dark mode</span></button>
+        <p>Developed By Jrm <span id="appYear"></span></p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="header-copy">
+          <button class="mobile-menu" id="mobileMenu" aria-label="Open navigation" aria-expanded="false">☰</button>
+          <div>
+            <p class="eyebrow" id="pageEyebrow">CSITS ORGANIZATION</p>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageDescription">A focused view of your organization’s work.</p>
+          </div>
+        </div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <section id="dashboardPage" class="page active-page" aria-label="Dashboard">
+        <div class="stat-grid" id="summaryStats"></div>
+        <section class="section-card weekly-card">
+          <div class="section-heading split-heading">
+            <div>
+              <p class="eyebrow">THIS WEEK</p>
+              <h2>Weekly pulse</h2>
+            </div>
+            <button class="button button-secondary" data-action="open-report">Generate weekly report <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="weekly-grid" id="weeklySummary"></div>
+        </section>
+        <section class="section-card">
+          <div class="section-heading split-heading">
+            <div>
+              <p class="eyebrow">TASK OVERVIEW</p>
+              <h2>Keep work moving</h2>
+            </div>
+            <span class="result-count" id="dashboardTaskCount"></span>
+          </div>
+          <div class="filter-bar" aria-label="Task overview filters">
+            <label class="search-field"><span aria-hidden="true">⌕</span><input id="dashboardSearch" type="search" placeholder="Search tasks"></label>
+            <label class="select-field"><span class="sr-only">Filter by status</span><select id="dashboardStatusFilter"><option value="">All statuses</option><option>To Do</option><option>In Progress</option><option>Completed</option></select></label>
+          </div>
+          <div class="table-wrap"><table class="data-table"><thead><tr><th>Task</th><th>Assigned member</th><th>Due date</th><th>Priority</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="dashboardTaskRows"></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="boardPage" class="page" aria-label="Task Board" hidden>
+        <section class="section-card board-controls">
+          <div class="filter-bar board-filter-bar">
+            <label class="search-field"><span aria-hidden="true">⌕</span><input id="boardSearch" type="search" placeholder="Search task title"></label>
+            <label class="select-field"><span class="sr-only">Filter by member</span><select id="boardMemberFilter"></select></label>
+            <label class="select-field"><span class="sr-only">Filter by priority</span><select id="boardPriorityFilter"><option value="">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select></label>
+            <label class="select-field"><span class="sr-only">Filter by due date</span><select id="boardDueFilter"><option value="">All due dates</option><option value="overdue">Overdue</option><option value="upcoming">Due in next 7 days</option><option value="none">No due date</option></select></label>
+          </div>
+        </section>
+        <div class="kanban" id="kanbanBoard"></div>
+      </section>
+
+      <section id="membersPage" class="page" aria-label="Members" hidden>
+        <section class="section-card">
+          <div class="section-heading split-heading">
+            <div><p class="eyebrow">CSITS TEAM</p><h2>Organization members</h2></div>
+            <button class="button button-primary" data-action="add-member">+ Add member</button>
+          </div>
+          <div class="filter-bar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="memberSearch" type="search" placeholder="Search member name, role, or email"></label><span class="result-count" id="memberCount"></span></div>
+          <div class="table-wrap"><table class="data-table members-table"><thead><tr><th>Member</th><th>Role</th><th>Email</th><th>Assigned</th><th>Completed</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="memberRows"></tbody></table></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="taskModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+      <div class="modal-header"><div><p class="eyebrow">TASK MANAGEMENT</p><h2 id="taskModalTitle">Add task</h2></div><button class="icon-button" data-close-modal="taskModal" aria-label="Close">×</button></div>
+      <form id="taskForm" novalidate>
+        <input type="hidden" id="taskId">
+        <div class="form-grid">
+          <label class="form-field form-wide">Task title <b>*</b><input id="taskTitle" name="title" maxlength="120" required autocomplete="off"><small class="field-error" data-error="title"></small></label>
+          <label class="form-field form-wide">Description <textarea id="taskDescription" name="description" maxlength="700" rows="3" placeholder="Add a short helpful description (optional)"></textarea></label>
+          <label class="form-field">Assigned member <b>*</b><select id="taskMember" name="memberId" required></select><small class="field-error" data-error="memberId"></small></label>
+          <label class="form-field">Due date <b>*</b><input id="taskDueDate" name="dueDate" type="date" required><small class="field-error" data-error="dueDate"></small></label>
+          <label class="form-field">Priority <b>*</b><select id="taskPriority" name="priority"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select></label>
+          <label class="form-field">Status <b>*</b><select id="taskStatus" name="status"><option>To Do</option><option>In Progress</option><option>Completed</option></select></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="button button-ghost" data-close-modal="taskModal">Cancel</button><button class="button button-primary" type="submit" id="taskSubmit">Save task</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="memberModal" hidden>
+    <section class="modal modal-small" role="dialog" aria-modal="true" aria-labelledby="memberModalTitle">
+      <div class="modal-header"><div><p class="eyebrow">TEAM DIRECTORY</p><h2 id="memberModalTitle">Add member</h2></div><button class="icon-button" data-close-modal="memberModal" aria-label="Close">×</button></div>
+      <form id="memberForm" novalidate>
+        <input type="hidden" id="memberId">
+        <div class="form-grid single-grid">
+          <label class="form-field">Full name <b>*</b><input id="memberName" name="name" maxlength="80" required autocomplete="name"><small class="field-error" data-error="name"></small></label>
+          <label class="form-field">Organization role <b>*</b><input id="memberRole" name="role" maxlength="80" required placeholder="e.g. Project Lead"><small class="field-error" data-error="role"></small></label>
+          <label class="form-field">Email address <input id="memberEmail" name="email" type="email" maxlength="120" autocomplete="email"><small class="field-error" data-error="email"></small></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="button button-ghost" data-close-modal="memberModal">Cancel</button><button class="button button-primary" type="submit">Save member</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="detailModal" hidden>
+    <section class="modal modal-small" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <div class="modal-header"><div><p class="eyebrow">TASK DETAILS</p><h2 id="detailModalTitle"></h2></div><button class="icon-button" data-close-modal="detailModal" aria-label="Close">×</button></div>
+      <div id="taskDetailContent"></div>
+      <div class="modal-actions"><button class="button button-ghost" data-close-modal="detailModal">Close</button><button id="detailEditButton" class="button button-primary">Edit task</button></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop report-backdrop" id="reportModal" hidden>
+    <section class="modal report-modal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+      <div class="modal-header no-print"><div><p class="eyebrow">REPORTING</p><h2 id="reportModalTitle">Weekly Report Generator</h2></div><button class="icon-button" data-close-modal="reportModal" aria-label="Close">×</button></div>
+      <div class="report-controls no-print">
+        <label class="form-field">Start date <input id="reportStart" type="date"></label>
+        <label class="form-field">End date <input id="reportEnd" type="date"></label>
+        <button class="button button-secondary" data-action="current-week">Current week</button>
+        <button class="button button-primary" data-action="generate-report">Generate</button>
+      </div>
+      <small class="report-note no-print">Weeks run Monday through Sunday using your local date.</small>
+      <div id="reportOutput" class="report-output"></div>
+      <div class="modal-actions no-print"><button class="button button-ghost" data-close-modal="reportModal">Close</button><button class="button button-secondary" data-action="export-csv">Export CSV</button><button class="button button-primary" data-action="print-report">Print / Save PDF</button></div>
+    </section>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
